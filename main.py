@@ -101,8 +101,8 @@ def model():
     return training_model
 training_model = model()
 #Training
-training_model.fit([encoder_input_data, decoder_input_data], decoder_target_data, batch_size = batch_size, epochs = epochs)
-training_model.save_weights('model.h5')
+'''training_model.fit([encoder_input_data, decoder_input_data], decoder_target_data, batch_size = batch_size, epochs = epochs)
+training_model.save_weights('model.h5')'''
 training_model.load_weights('model.h5')
 encoder_inputs = training_model.input[0]
 encoder_outputs, state_h_enc, state_c_enc = training_model.layers[2].output
