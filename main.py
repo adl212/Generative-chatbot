@@ -82,28 +82,32 @@ dimensionality = 256
 #The batch size and number of epochs
 batch_size = 128
 epochs = 1000
-def model():
-    #Encoder
-    encoder_inputs = Input(shape=(None, num_encoder_tokens))
-    encoder_lstm = LSTM(dimensionality, return_state=True)
-    encoder_outputs, state_hidden, state_cell = encoder_lstm(encoder_inputs)
-    encoder_states = [state_hidden, state_cell]
-    #Decoder
-    decoder_inputs = Input(shape=(None, num_decoder_tokens))
-    decoder_lstm = LSTM(dimensionality, return_sequences=True, return_state=True)
-    decoder_outputs, decoder_state_hidden, decoder_state_cell = decoder_lstm(decoder_inputs, initial_state=encoder_states)
-    decoder_dense = Dense(num_decoder_tokens, activation='softmax')
-    decoder_outputs = decoder_dense(decoder_outputs)
-    #Model
-    training_model = Model([encoder_inputs, decoder_inputs], decoder_outputs)
-    #Compiling
-    training_model.compile(optimizer='rmsprop', loss='categorical_crossentropy', metrics=['accuracy'], sample_weight_mode='temporal')
-    return training_model
-training_model = model()
+#Encoder
+encoder_inputs = Input(shape=(None, num_encoder_tokens))
+encoder_lstm = LSTM(dimensionality, return_state=True)
+encoder_outputs, state_hidden, state_cell = encoder_lstm(encoder_inputs)
+encoder_states = [state_hidden, state_cell]
+#Decoder
+decoder_inputs = Input(shape=(None, num_decoder_tokens))
+decoder_lstm = LSTM(dimensionality, return_sequences=True, return_state=True)
+decoder_outputs, decoder_state_hidden, decoder_state_cell = decoder_lstm(decoder_inputs, initial_state=encoder_states)
+decoder_dense = Dense(num_decoder_tokens, activation='softmax')
+decoder_outputs = decoder_dense(decoder_outputs)
+#Model
+training_model = Model([encoder_inputs, decoder_inputs], decoder_outputs)
+#Compiling
+training_model.compile(optimizer='rmsprop', loss='categorical_crossentropy', metrics=['accuracy'], sample_weight_mode='temporal')
 #Training
 '''training_model.fit([encoder_input_data, decoder_input_data], decoder_target_data, batch_size = batch_size, epochs = epochs)
 training_model.save_weights('model.h5')'''
+weights = []
+for layer in training_model.layers:
+    weights.append(layer)
 training_model.load_weights('model.h5')
+new_weights = []
+for layer in training_model.layers:
+    new_weights.append(layer)
+print(weights==new_weights)
 encoder_inputs = training_model.input[0]
 encoder_outputs, state_h_enc, state_c_enc = training_model.layers[2].output
 encoder_states = [state_h_enc, state_c_enc]
@@ -189,5 +193,5 @@ class ChatBot:
         return True
     return False
   
-'''chatbot = ChatBot()
-chatbot.start_chat()'''
+chatbot = ChatBot()
+chatbot.start_chat()
